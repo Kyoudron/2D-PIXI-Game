@@ -33,19 +33,23 @@
           loader = PIXI.loader,
           resources = PIXI.loader.resources,
           Sprite = PIXI.Sprite;
+          TextureCache = PIXI.utils.TextureCache;
 
       var stage = new Container(),
-          renderer = autoDetectRenderer(window.innerWidth, window.innerHeight);
+          renderer = autoDetectRenderer(256, 256);
       document.body.appendChild(renderer.view);
 
       loader
         .add([
+          "images/forest/dungeon.png",
           "images/terraria/Ninja.png",
-          "images/terraria/Sun2.png",
-          "images/terraria/NPC_68.png"
+          "images/terraria/Item_626.png",
+          "images/terraria/NPC_105.png"
           ])
         .on("progress", loadProgressHandler)
         .load(setup);
+
+      var ninja;
 
       function loadProgressHandler(loader, resource) {
 
@@ -62,18 +66,54 @@
 
       function setup() {
 
-        var ninja = new Sprite(resources["images/terraria/Ninja.png"].texture);
-        var sun = new Sprite(resources["images/terraria/Sun2.png"].texture);
-        var skull = new Sprite(resources["images/terraria/NPC_68.png"].texture)
-        ninja.x = 96;
-        ninja.y = 96;
-        skull.x = 300;
-        skull.y = 96;
+        var dungeonTexture = TextureCache["images/forest/dungeon.png"];
+        dungeon = new Sprite(dungeonTexture);
 
-        stage.addChild(ninja, sun, skull);
+        stage.addChild(dungeon);
+
+        ninja = new Sprite(resources["images/terraria/Ninja.png"].texture);
+        ninja.x = 50;
+        ninja.y = stage.height / 2 - ninja.height / 2;
+
+        stage.addChild(ninja);
+
+        treasure = new Sprite(resources["images/terraria/Item_626.png"].texture);
+        stage.addChild(treasure);
+
+        treasure.x = stage.width - treasure.width - 48;
+        treasure.y = stage.height / 2 - treasure.height / 2;
+
+        var numberOfBad = 3,
+            spacing = 12,
+            xOffset = 70;
+
+        for (var i = 0; i < numberOfBad; i++) {
+          //make bad guy
+          var bad = new Sprite(resources["images/terraria/NPC_105.png"].texture);
+          var x = spacing * i + xOffset;
+          var y = randomInt(0, stage.height - bad.height);
+
+          bad.x = x;
+          bad.y = y;
+
+          stage.addChild(bad);
+        }
+
+        gameLoop()
+      }
+
+      function gameLoop(){
+        requestAnimationFrame(gameLoop);
+
+        ninja.x += 1;
+
         renderer.render(stage);
       }
 
+
+      function randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
 
 
     </script>
