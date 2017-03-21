@@ -22,9 +22,58 @@
 
   </head>
   <body>
-    <div id="root"></div>
+    <!-- <div id="root"></div> -->
     <script src="js/three.js"></script>
-    <script>
+    <script src="js/pixi.min.js"></script>
+
+    <script type="text/javascript">
+
+      var Container = PIXI.Container,
+          autoDetectRenderer = PIXI.autoDetectRenderer,
+          loader = PIXI.loader,
+          resources = PIXI.loader.resources,
+          Sprite = PIXI.Sprite;
+
+      var stage = new Container(),
+          renderer = autoDetectRenderer(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.view);
+
+      loader
+        .add([
+          "images/terraria/Ninja.png",
+          "images/terraria/Sun2.png",
+          "images/terraria/NPC_68.png"
+          ])
+        .on("progress", loadProgressHandler)
+        .load(setup);
+
+      function loadProgressHandler(loader, resource) {
+
+        //Display the file `url` currently being loaded
+        console.log("loading: " + resource.url);
+
+        //Display the precentage of files currently loaded
+        console.log("progress: " + loader.progress + "%");
+
+        //If you gave your files names as the first argument
+        //of the `add` method, you can access them like this
+        //console.log("loading: " + resource.name);
+      }
+
+      function setup() {
+
+        var ninja = new Sprite(resources["images/terraria/Ninja.png"].texture);
+        var sun = new Sprite(resources["images/terraria/Sun2.png"].texture);
+        var skull = new Sprite(resources["images/terraria/NPC_68.png"].texture)
+        ninja.x = 96;
+        ninja.y = 96;
+        skull.x = 300;
+        skull.y = 96;
+
+        stage.addChild(ninja, sun, skull);
+        renderer.render(stage);
+      }
+
 
 
     </script>
