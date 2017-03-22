@@ -49,7 +49,6 @@
         .on("progress", loadProgressHandler)
         .load(setup);
 
-      var ninja;
 
       function loadProgressHandler(loader, resource) {
 
@@ -64,24 +63,127 @@
         //console.log("loading: " + resource.name);
       }
 
+      function keyboard(keyCode) {
+        var key = {};
+        key.code = keyCode;
+        key.isDown = false;
+        key.isUp = true;
+        key.press = undefined;
+        key.release = undefined;
+        //The `downHandler`
+        key.downHandler = function(event) {
+          if (event.keyCode === key.code) {
+            if (key.isUp && key.press) key.press();
+            key.isDown = true;
+            key.isUp = false;
+          }
+          event.preventDefault();
+        };
+
+        //The `upHandler`
+        key.upHandler = function(event) {
+          if (event.keyCode === key.code) {
+            if (key.isDown && key.release) key.release();
+            key.isDown = false;
+            key.isUp = true;
+          }
+          event.preventDefault();
+        };
+
+        //Attach event listeners
+        window.addEventListener(
+          "keydown", key.downHandler.bind(key), false
+        );
+        window.addEventListener(
+          "keyup", key.upHandler.bind(key), false
+        );
+        return key;
+      }
+
+      var ninja, state;
+
       function setup() {
 
+        // dungeon all map
         var dungeonTexture = TextureCache["images/forest/dungeon.png"];
         dungeon = new Sprite(dungeonTexture);
 
         stage.addChild(dungeon);
 
+        //ninja character
         ninja = new Sprite(resources["images/terraria/Ninja.png"].texture);
         ninja.x = 50;
         ninja.y = stage.height / 2 - ninja.height / 2;
+        ninja.vx = 0;
+        ninja.vy = 0;
 
         stage.addChild(ninja);
 
+        var left = keyboard(37),
+            up = keyboard(38),
+            right = keyboard(39),
+            down = keyboard(40);
+
+        //Left arrow key `press` method
+        left.press = function() {
+
+          //Change the ninja's velocity when the key is pressed
+          ninja.vx = -5;
+          ninja.vy = 0;
+        };
+
+        //Left arrow key `release` method
+        left.release = function() {
+
+          //If the left arrow has been released, and the right arrow isn't down,
+          //and the ninja isn't moving vertically:
+          //Stop the ninja
+          if (!right.isDown && ninja.vy === 0) {
+            ninja.vx = 0;
+          }
+        };
+
+        //Up
+        up.press = function() {
+          ninja.vy = -5;
+          ninja.vx = 0;
+        };
+        up.release = function() {
+          if (!down.isDown && ninja.vx === 0) {
+            ninja.vy = 0;
+          }
+        };
+
+        //Right
+        right.press = function() {
+          ninja.vx = 5;
+          ninja.vy = 0;
+        };
+        right.release = function() {
+          if (!left.isDown && ninja.vy === 0) {
+            ninja.vx = 0;
+          }
+        };
+
+        //Down
+        down.press = function() {
+          ninja.vy = 5;
+          ninja.vx = 0;
+        };
+        down.release = function() {
+          if (!up.isDown && ninja.vx === 0) {
+            ninja.vy = 0;
+          }
+        };
+
+        // treasure chest
         treasure = new Sprite(resources["images/terraria/Item_626.png"].texture);
         stage.addChild(treasure);
 
         treasure.x = stage.width - treasure.width - 48;
         treasure.y = stage.height / 2 - treasure.height / 2;
+
+        // bag guys
 
         var numberOfBad = 3,
             spacing = 12,
@@ -99,17 +201,23 @@
           stage.addChild(bad);
         }
 
+        state =  play
         gameLoop()
       }
 
       function gameLoop(){
         requestAnimationFrame(gameLoop);
 
-        ninja.x += 1;
+        state();
 
         renderer.render(stage);
       }
 
+      function play() {
+
+        ninja.x += ninja.vx;
+        ninja.y += ninja.vy;
+      }
 
       function randomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
