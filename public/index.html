@@ -42,11 +42,11 @@
           renderer = autoDetectRenderer(window.outerWidth, window.innerHeight);
       document.body.appendChild(renderer.view);
       loader
-        .add("images/terraria/Ninja.png")
-        .add("images/forest/dungeon2.png")
-        .add("images/terraria/Item_306.png")
-        .add("images/terraria/NPC_105.png")
-        .add("images/terraria/Item_1806.png")
+        .add("images/terraria2/Ninja.png")
+        .add("images/terraria2/dungeon2.png")
+        .add("images/terraria2/Item_306.png")
+        .add("images/terraria2/NPC_105.png")
+        .add("images/terraria2/Item_1806.png")
         .load(setup);
       //Define any variables that are used in more than one function
       var ninja, box, message, state, bad, gameScene, heathBar, treasure;
@@ -57,11 +57,11 @@
         stage.addChild(gameScene);
 
         //Create dungeon
-        dungeon = new Sprite(resources["images/forest/dungeon2.png"].texture);
+        dungeon = new Sprite(resources["images/terraria2/dungeon2.png"].texture);
         dungeon.scale.set(2, 1)
         gameScene.addChild(dungeon)
 
-        keyDoor = new Sprite(resources["images/terraria/Item_1806.png"].texture);
+        keyDoor = new Sprite(resources["images/terraria2/Item_1806.png"].texture);
         keyDoor.x = 30;
         keyDoor.y = 12;
         gameScene.addChild(keyDoor)
@@ -77,7 +77,7 @@
 
         for (var i = 0; i < numberOfBad; i++) {
           //make bad guy
-          bad = new Sprite(resources["images/terraria/NPC_105.png"].texture);
+          bad = new Sprite(resources["images/terraria2/NPC_105.png"].texture);
           x = spacing * i + xOffset;
           y = randomInt(0, stage.height - bad.height);
           bad.x = x;
@@ -107,7 +107,7 @@
             healthBar.outer = outerBar;
 
         //Create the `ninja` sprite
-        ninja = new Sprite(resources["images/terraria/Ninja.png"].texture);
+        ninja = new Sprite(resources["images/terraria2/Ninja.png"].texture);
         ninja.x = 45;
         ninja.y = 96;
         ninja.vx = 0;
@@ -115,7 +115,7 @@
         gameScene.addChild(ninja);
 
         //Adding treasure chest
-        treasure = new Sprite(resources["images/terraria/Item_306.png"].texture);
+        treasure = new Sprite(resources["images/terraria2/Item_306.png"].texture);
         treasure.x = stage.width - treasure.width - 310;
         treasure.y = stage.height / 2 - treasure.height / 2;
         gameScene.addChild(treasure);
@@ -243,7 +243,8 @@
 
         if (healthBar.outer.width < 0) {
           state = end;
-          message.text = "You lost!";
+          message.text = "You lost!"
+          }
         }
 
         if (hitTestRectangle(treasure, keyDoor)) {
@@ -256,7 +257,6 @@
         gameScene.visible = false;
         gameOverScene.visible = true;
       }
-
 
       function contain(sprite, container) {
         var collision = undefined;
