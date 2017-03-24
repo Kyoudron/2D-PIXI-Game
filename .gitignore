@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /three-js
+/public/images/terraria
 
 # testing
 /coverage
