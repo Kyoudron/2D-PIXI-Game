@@ -44,8 +44,9 @@
       loader
         .add("images/terraria/Ninja.png")
         .add("images/forest/dungeon2.png")
-        .add("images/terraria/Item_626.png")
+        .add("images/terraria/Item_306.png")
         .add("images/terraria/NPC_105.png")
+        .add("images/terraria/Item_1806.png")
         .load(setup);
       //Define any variables that are used in more than one function
       var ninja, box, message, state, bad, gameScene, heathBar, treasure;
@@ -59,6 +60,11 @@
         dungeon = new Sprite(resources["images/forest/dungeon2.png"].texture);
         dungeon.scale.set(2, 1)
         gameScene.addChild(dungeon)
+
+        keyDoor = new Sprite(resources["images/terraria/Item_1806.png"].texture);
+        keyDoor.x = 30;
+        keyDoor.y = 12;
+        gameScene.addChild(keyDoor)
 
         //Creating the bad guys
         var numberOfBad = 20,
@@ -109,7 +115,7 @@
         gameScene.addChild(ninja);
 
         //Adding treasure chest
-        treasure = new Sprite(resources["images/terraria/Item_626.png"].texture);
+        treasure = new Sprite(resources["images/terraria/Item_306.png"].texture);
         treasure.x = stage.width - treasure.width - 310;
         treasure.y = stage.height / 2 - treasure.height / 2;
         gameScene.addChild(treasure);
@@ -119,7 +125,7 @@
         stage.addChild(gameOverScene);
 
         message = new PIXI.Text(
-          "The End!",
+          "",
           {font: "64px Futura", fill: "white"}
         );
         message.x = 120;
@@ -177,13 +183,6 @@
             ninja.vy = 0;
           }
         };
-        //Create the text sprite
-        message = new PIXI.Text(
-          "No collision...",
-          {font: "18px sans-serif", fill: "white"}
-        );
-        message.position.set(1100, 8);
-        stage.addChild(message);
         //Set the game state
         state = play;
 
@@ -230,7 +229,7 @@
 
         if(ninjaHit) {
           ninja.alpha = 0.5;
-          healthBar.outer.width -= 1;
+          healthBar.outer.width -= 100;
         } else {
           ninja.alpha = 1;
         }
@@ -240,6 +239,16 @@
         if (hitTestRectangle(ninja, treasure)) {
           treasure.x = ninja.x + 8;
           treasure.y = ninja.y + 8;
+        }
+
+        if (healthBar.outer.width < 0) {
+          state = end;
+          message.text = "You lost!";
+        }
+
+        if (hitTestRectangle(treasure, keyDoor)) {
+          state = end;
+          message.text = "You won!";
         }
       }
 
