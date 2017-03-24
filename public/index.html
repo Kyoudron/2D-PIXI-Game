@@ -48,19 +48,27 @@
         .add("images/terraria/NPC_105.png")
         .load(setup);
       //Define any variables that are used in more than one function
-      var ninja, box, message, state, bad;
+      var ninja, box, message, state, bad, gameScene, heathBar, treasure;
 
       function setup() {
+
+        gameScene = new Container();
+        stage.addChild(gameScene);
 
         //Create dungeon
         dungeon = new Sprite(resources["images/forest/dungeon2.png"].texture);
         dungeon.scale.set(2, 1)
-        stage.addChild(dungeon)
+        gameScene.addChild(dungeon)
 
         //Creating the bad guys
-        var numberOfBad = 6,
+        var numberOfBad = 20,
             spacing = 62,
-            xOffset = 470;
+            xOffset = 80,
+            speed = 2,
+            direction = 1;
+
+        baddies = [];
+
         for (var i = 0; i < numberOfBad; i++) {
           //make bad guy
           bad = new Sprite(resources["images/terraria/NPC_105.png"].texture);
@@ -68,30 +76,55 @@
           y = randomInt(0, stage.height - bad.height);
           bad.x = x;
           bad.y = y;
-          stage.addChild(bad);
+          bad.vy = speed * direction;
+          direction *= -1
+          baddies.push(bad)
+          gameScene.addChild(bad);
         }
-        //Create the box
-        box = new PIXI.Graphics();
-        box.beginFill(0xCCFF99);
-        box.drawRect(0, 0, 64, 64);
-        box.endFill();
-        box.x = 120;
-        box.y = 96;
-        stage.addChild(box);
+
+        //Create the health bar
+        healthBar = new Container();
+        healthBar.position.set(stage.width - 170, 6)
+        gameScene.addChild(healthBar);
+
+        var innerBar = new Graphics();
+            innerBar.beginFill(0x000000);
+            innerBar.drawRect(0, 0, 128, 8);
+            innerBar.endFill();
+            healthBar.addChild(innerBar);
+
+        var outerBar = new Graphics();
+            outerBar.beginFill(0xFF3300);
+            outerBar.drawRect(0, 0, 128, 8);
+            outerBar.endFill();
+            healthBar.addChild(outerBar);
+            healthBar.outer = outerBar;
 
         //Create the `ninja` sprite
         ninja = new Sprite(resources["images/terraria/Ninja.png"].texture);
-        ninja.x = 16;
+        ninja.x = 45;
         ninja.y = 96;
         ninja.vx = 0;
         ninja.vy = 0;
-        stage.addChild(ninja);
+        gameScene.addChild(ninja);
 
         //Adding treasure chest
         treasure = new Sprite(resources["images/terraria/Item_626.png"].texture);
-        stage.addChild(treasure);
-        treasure.x = stage.width - treasure.width - 48;
+        treasure.x = stage.width - treasure.width - 310;
         treasure.y = stage.height / 2 - treasure.height / 2;
+        gameScene.addChild(treasure);
+
+
+        gameOverScene = new Container();
+        stage.addChild(gameOverScene);
+
+        message = new PIXI.Text(
+          "The End!",
+          {font: "64px Futura", fill: "white"}
+        );
+        message.x = 120;
+        message.y = stage.height / 2 - 32;
+        gameOverScene.addChild(message);
 
 
         //Capture the keyboard arrow keys
@@ -157,6 +190,7 @@
         //Start the game loop
         gameLoop();
       }
+
       function gameLoop(){
         //Loop this function 60 times per second
         requestAnimationFrame(gameLoop);
@@ -175,20 +209,71 @@
         //use the ninja's velocity to make it move
         ninja.x += ninja.vx;
         ninja.y += ninja.vy;
-        //check for a collision between the ninja and the box
-        if (hitTestRectangle(ninja, bad)) {
-          //if there's a collision, change the message text
-          //and tint the box red
-          message.text = "hit!";
-          box.tint = 0xff3300;
+
+        contain(ninja, {x: 28, y: 10, width: 990, height: 495});
+
+        var ninjaHit = false;
+
+        baddies.forEach(function(bad){
+          bad.y += bad.vy;
+
+          var badHitWall = contain(bad, {x: 28, y: 10, width: 980, height: 495});
+
+          if (badHitWall === "top" || badHitWall === "bottom") {
+            bad.vy *= -1;
+          }
+
+          if (hitTestRectangle(ninja, bad)) {
+            ninjaHit = true;
+          }
+        });
+
+        if(ninjaHit) {
+          ninja.alpha = 0.5;
+          healthBar.outer.width -= 1;
         } else {
-          //if there's no collision, reset the message
-          //text and the box's color
-          message.text = "No collision...";
-          box.tint = 0xccff99;
+          ninja.alpha = 1;
+        }
+
+
+        //check for a collision between the ninja and the box
+        if (hitTestRectangle(ninja, treasure)) {
+          treasure.x = ninja.x + 8;
+          treasure.y = ninja.y + 8;
         }
       }
 
+      function end() {
+        gameScene.visible = false;
+        gameOverScene.visible = true;
+      }
+
+
+      function contain(sprite, container) {
+        var collision = undefined;
+        //Left
+        if (sprite.x < container.x) {
+          sprite.x = container.x;
+          collision = "left";
+        }
+        //Top
+        if (sprite.y < container.y) {
+          sprite.y = container.y;
+          collision = "top";
+        }
+        //Right
+        if (sprite.x + sprite.width > container.width) {
+          sprite.x = container.width - sprite.width;
+          collision = "right";
+        }
+        //Bottom
+        if (sprite.y + sprite.height > container.height) {
+          sprite.y = container.height - sprite.height;
+          collision = "bottom";
+        }
+        //Return the `collision` value
+        return collision;
+      }
 
       //The `hitTestRectangle` function
       function hitTestRectangle(r1, r2) {
