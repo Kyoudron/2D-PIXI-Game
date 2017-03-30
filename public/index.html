@@ -191,7 +191,7 @@
       }
 
       function gameLoop(){
-        //Loop this function 60 times per second
+        //Loop bad function 60 times per second
         requestAnimationFrame(gameLoop);
         //Update the current game state
         state();
@@ -230,18 +230,16 @@
           if (hitTestRectangle(ninja, bad)) {
             ninjaHit = true;
           }
-          // function distanceBetweenPoints (a, b) {
-          //   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
-          // }
 
-          // function angleBetweenPoints (a, b) {
-          //   return Math.atan2(b.y - a.y, b.x - a.x) * 180/Math.PI;
-          // }
+          moveBadX = ninja.x - bad.x;
+          moveBadY = ninja.y - bad.y;
 
-          // var angle = angleBetweenPoints({x: bad.x, y: bad.y}, {x: ninja.x, y: ninja.y});
+          toNinjaLength = Math.sqrt(moveBadX * moveBadX + moveBadY * moveBadY);
+          moveBadX = moveBadX / toNinjaLength;
+          moveBadY = moveBadY / toNinjaLength;
 
-          // bad.x += Math.sin(angle * Math.PI / 180) * 10;
-          // bad.y += Math.cos(angle * Math.PI / 180) * 10;
+          bad.x += moveBadX * (bad.vx + 1);
+          bad.y += moveBadY * (bad.vy + 1);
 
         });
 
