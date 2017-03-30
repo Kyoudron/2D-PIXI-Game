@@ -219,6 +219,17 @@
 
           var badHitWall = contain(bad, {x: 28, y: 10, width: 980, height: 495});
 
+          moveBadX = ninja.x - bad.x;
+          moveBadY = ninja.y - bad.y;
+
+          toNinjaLength = Math.sqrt(moveBadX * moveBadX + moveBadY * moveBadY);
+          moveBadX = moveBadX / toNinjaLength;
+          moveBadY = moveBadY / toNinjaLength;
+
+          bad.x += moveBadX * 1;
+          bad.y += moveBadY * 1;
+
+
           if (badHitWall === "left" || badHitWall === "right") {
             bad.vx *= -1;
           }
@@ -231,22 +242,12 @@
             ninjaHit = true;
           }
 
-          moveBadX = ninja.x - bad.x;
-          moveBadY = ninja.y - bad.y;
-
-          toNinjaLength = Math.sqrt(moveBadX * moveBadX + moveBadY * moveBadY);
-          moveBadX = moveBadX / toNinjaLength;
-          moveBadY = moveBadY / toNinjaLength;
-
-          bad.x += moveBadX * (bad.vx + 1);
-          bad.y += moveBadY * (bad.vy + 1);
-
         });
 
 
         if(ninjaHit) {
           ninja.alpha = 0.5;
-          healthBar.outer.width -= 1;
+          healthBar.outer.width -= 0.02;
         } else {
           ninja.alpha = 1;
         }
